@@ -120,3 +120,8 @@ cython_debug/
 
 # macOS
 .DS_Store
+
+uploads/
+debug_frames/
+yolov8n.pt
+exit_point.json
