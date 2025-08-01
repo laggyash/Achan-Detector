@@ -124,3 +124,4 @@ cython_debug/
 uploads/
 debug_frames/
 yolov8n.pt
+exit_point.json
