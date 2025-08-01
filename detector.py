@@ -1,9 +1,12 @@
 import os
 import shutil
 import cv2
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-from ultralytics import YOLO
+from fastapi 
+import FastAPI, File, UploadFile
+from fastapi.responses 
+import JSONResponse
+from ultralytics 
+import YOLO
 import requests
 from dotenv import load_dotenv
 
