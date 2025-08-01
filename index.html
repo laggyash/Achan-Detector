@@ -2,244 +2,579 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Achan Detector Live Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <style>
+        /* --- Deep Dark Mode --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #0d133d 100%);
+            font-family: 'Poppins', Arial, sans-serif;
+            background: linear-gradient(135deg, #0d1117, #161b22, #0d1117, #222b38);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             min-height: 100vh;
+            color: #e6edf3;
         }
-        h1 {
-            color: #fff;
-            text-align: center;
-            margin-top: 30px;
-            text-shadow: 0 2px 8px #0006;
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(
+                600px circle at var(--x, 0px) var(--y, 0px), 
+                rgba(52, 231, 249, 0.15),
+                transparent 40%
+            );
         }
-        .container {
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .header-container {
+            background-color: rgba(13, 17, 23, 0.5);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 10px 10px;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin: 30px auto 60px auto;
+            max-width: 1184px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-title {
+            color: #e6edf3;
+            font-size: 1.75rem;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 0, 0, 0.15);
+            color: #ff8a8a;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff5252;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        .clock {
+            color: #8b949e;
+            font-size: 1.1rem;
+            font-weight: 500;
+            background-color: rgba(33, 38, 45, 0.5);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            flex-shrink: 0;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .main-content-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            max-width: 1184px;
+            margin: 0 auto;
+        }
+
+        .video-column {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 48px;
-            margin-top: 60px;
+            gap: 32px;
+            width: 720px;
+            max-width: 100%;
         }
+
         .video-portal {
-            background: #101c3b;
+            background: #010409;
             border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(20,30,60,0.18);
-            width: 900px;
-            height: 540px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            height: 405px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            margin-bottom: 32px;
+            border: 1px solid #30363d;
         }
-        .status-panel-row {
+        .controls-column {
             display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: center;
-            gap: 0;
-            width: 100%;
-            position: relative;
-            min-height: 220px;
+            flex-direction: column;
+            width: 420px;
+            max-width: 100%;
         }
         .status-panel {
-            background: rgba(20, 30, 60, 0.40);
+            background: rgba(22, 27, 34, 0.7);
             border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(20,30,60,0.18);
-            width: 420px;
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2), inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
+            width: 100%;
             padding: 36px 28px;
             display: flex;
             flex-direction: column;
-            gap: 32px;
+            justify-content: center; 
             align-items: center;
-            backdrop-filter: blur(8px);
-            border: 1.5px solid rgba(30,40,80,0.18);
-            transition: transform 0.4s cubic-bezier(.4,0,.2,1);
-        }
-        .status-panel.shift-left {
-            transform: translateX(-220px);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid #30363d;
+            box-sizing: border-box;
         }
         .option-box {
-            background: rgba(30,40,80,0.35);
-            border: 1.5px solid rgba(30,40,80,0.18);
+            background: rgba(13, 17, 23, 0.5);
+            border: 1.5px solid #30363d;
             border-radius: 14px;
             padding: 18px 20px;
-            margin-bottom: 12px;
             cursor: pointer;
-            transition: border 0.2s, background 0.2s;
-            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
-            position: relative;
+            transition: border 0.2s, background 0.2s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 350px;
-            backdrop-filter: blur(4px);
-            color: #fff;
+            color: #c9d1d9;
+            box-sizing: border-box;
+            margin-bottom: 24px;
         }
-        .option-box:hover, .option-box.active {
-            border: 1.5px solid #283593;
-            background: rgba(40,56,120,0.75);
-            color: #fff;
+        .option-box:last-child {
+            margin-bottom: 0;
+        }
+        .option-box:hover {
+            transform: translateY(-2px);
+            background: rgba(33, 38, 45, 0.7);
+            box-shadow: 0 0 15px rgba(52, 231, 249, 0.2);
+        }
+        .option-box.active {
+            border: 1.5px solid #34e7f9;
+            background: rgba(33, 38, 45, 1);
+            color: #e6edf3;
+            box-shadow: 0 0 20px rgba(52, 231, 249, 0.3);
         }
         .option-title {
-            font-size: 1.15rem;
-            font-weight: bold;
+            font-size: 1.1rem;
+            font-weight: 600;
             margin-bottom: 8px;
-            color: #fff;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .option-title svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
         }
         .option-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s cubic-bezier(.4,0,.2,1), padding 0.3s;
             padding-top: 0;
-            opacity: 0.7;
-            color: #e0e6ed;
+            color: #c9d1d9;
         }
         .option-box.active .option-content {
             max-height: 120px;
             padding-top: 12px;
-            opacity: 1;
         }
         .status {
-            font-size: 1.13rem;
+            font-size: 1.05rem;
             margin-bottom: 10px;
-            color: #fff;
+            color: #e6edf3;
         }
         .eta {
-            font-size: 1.08rem;
-            color: #90caf9;
+            font-size: 1rem;
+            color: #34e7f9;
+            font-weight: 600;
         }
-        /* ETA Popup */
         .eta-popup {
-            position: absolute;
-            right: -420px;
-            top: 0;
-            width: 380px;
-            min-height: 180px;
-            background: rgba(30,40,80,0.92);
+            background: rgba(22, 27, 34, 0.9);
             border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(20,30,60,0.18);
-            color: #fff;
-            padding: 32px 28px;
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2), inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
+            color: #c9d1d9;
             z-index: 10;
-            opacity: 0;
-            pointer-events: none;
-            transition: right 0.4s cubic-bezier(.4,0,.2,1), opacity 0.4s cubic-bezier(.4,0,.2,1);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid #30363d;
             display: flex;
             flex-direction: column;
             gap: 18px;
+            width: 100%;
+            box-sizing: border-box;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding: 0 28px;
+            border-width: 0;
+            transition: all 0.5s cubic-bezier(.4,0,.2,1);
+            margin-top: 24px;
         }
         .eta-popup.show {
-            right: -10px;
+            max-height: 500px;
             opacity: 1;
-            pointer-events: auto;
+            padding: 32px 28px;
+            border-width: 1.5px;
         }
         .eta-popup-title {
             font-size: 1.15rem;
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 10px;
-            color: #fff;
+            color: #e6edf3;
         }
         .eta-popup-content {
-            font-size: 1.08rem;
-            color: #e0e6ed;
+            font-size: 1rem;
+            color: #c9d1d9;
         }
+        .map-embed {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            height: 180px;
+            border: 1px solid #30363d;
+        }
+        
+        .info-section {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 60px;
+            width: 100%;
+        }
+        
+        .info-box {
+            background: rgba(13, 17, 23, 0.5);
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 24px;
+            flex: 1;
+            min-width: 300px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: all 0.4s ease;
+        }
+
+        #info-use-filler {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 24px;
+            margin: 0;
+            border-width: 0;
+            overflow: hidden;
+        }
+
+        .main-content-wrapper.popup-active #info-use-filler {
+            max-height: 500px;
+            opacity: 1;
+            padding: 24px;
+            border-width: 1px;
+        }
+
+        .main-content-wrapper.popup-active #info-use-original {
+            display: none;
+        }
+
+        .info-box h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: #e6edf3;
+            border-bottom: 1px solid #34e7f9;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+        .info-box p {
+            margin: 0;
+            color: #8b949e;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
         /* Responsive */
-        @media (max-width: 1100px) {
-            .video-portal { width: 98vw; max-width: 98vw; height: 56vw; max-height: 70vh;}
-            .status-panel, .eta-popup { width: 98vw; max-width: 98vw; }
-            .eta-popup { right: 0 !important; }
+        @media (max-width: 1184px) {
+            .main-content-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            .video-column {
+                width: 100%;
+            }
+            .video-portal {
+                width: 100%;
+                height: 56.25vw;
+            }
+            .controls-column {
+                width: 100%;
+            }
         }
         @media (max-width: 600px) {
-            .video-portal { height: 40vw; min-height: 200px; }
-            .option-box { max-width: 98vw; }
+            .header {
+                gap: 12px;
+                justify-content: center;
+            }
+            .header-title {
+                font-size: 1.5rem;
+                order: 2;
+            }
+            .live-indicator {
+                order: 1;
+            }
+            .clock {
+                order: 3;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Achan Detector Live Portal</h1>
-    <div class="container">
-        <!-- Live Video Feed -->
-        <div class="video-portal">
-            <video id="liveFeed" width="100%" height="100%" controls autoplay loop style="border-radius:24px;object-fit:cover;">
-                <source src="myvideo.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+    <div class="header-container">
+        <div class="header">
+            <div class="header-left">
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    <span>LIVE</span>
+                </div>
+                <h1 class="header-title">Achan Detector Portal</h1>
+            </div>
+            <div class="clock" id="clock">00:00:00</div>
         </div>
-        <!-- Status/Options Panel Row -->
-        <div class="status-panel-row">
+    </div>
+
+    <div class="main-content-wrapper" id="mainContentWrapper">
+        <div class="video-column">
+            <div class="video-portal">
+                <video id="liveFeed" width="100%" height="100%" controls autoplay loop style="border-radius:24px;object-fit:cover;">
+                    <source src="myvideo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="info-box" id="info-use-filler">
+                <h3>Use Cases</h3>
+                <p>Perfect for knowing when he's on his way, and also maybe for knowing whether he's at home or not when you're coming in late from a hangout with friends ;)</p>
+            </div>
+        </div>
+
+        <div class="controls-column">
             <div class="status-panel" id="statusPanel">
                 <div class="option-box" id="option1">
-                    <div class="option-title">Is it a problem if I come late?</div>
+                    <div class="option-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span>Is it a problem if I come late?</span>
+                    </div>
                     <div class="option-content">
                         <div class="status" id="fatherInsideStatus">Father inside the house: <b>Unknown</b></div>
-                        <div style="color:#b0b8d1; font-size:0.98rem;">If father is inside, you might want to be careful coming late!</div>
+                        <div id="lateNightAdvice" style="color:#8b949e; font-size:0.9rem;">Checking status...</div>
                     </div>
                 </div>
                 <div class="option-box" id="option2">
-                    <div class="option-title">Has father gone out?</div>
+                    <div class="option-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11C5.84 5 5.28 5.42 5.08 6.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+                        <span>Has father gone out?</span>
+                    </div>
                     <div class="option-content">
                         <div class="status" id="fatherGoneStatus">Status: <b>Unknown</b></div>
                         <div class="eta" id="etaInfo"></div>
-                        <div style="color:#b0b8d1; font-size:0.98rem;">If gone out, ETA will be shown below.</div>
+                        <div style="color:#8b949e; font-size:0.9rem;">If gone out, an ETA will be shown.</div>
                     </div>
                 </div>
             </div>
-            <!-- ETA Popup -->
             <div class="eta-popup" id="etaPopup">
                 <div class="eta-popup-title">Father's Estimated Arrival</div>
                 <div class="eta-popup-content" id="etaPopupContent">
-                    <span style="font-size:1.4rem;color:#90caf9;">15 min</span><br>
-                    <span>Based on Google Maps traffic data.</span>
+                    <span id="popupEta" style="font-size:1.4rem;color:#34e7f9;font-weight:600;">N/A</span><br>
+                    <span id="popupDistance">Distance: <b>N/A</b></span>
+                    <div class="map-embed">
+                        <iframe
+                            id="mapsFrame"
+                            width="100%"
+                            height="180"
+                            style="border:0;"
+                            loading="lazy"
+                            allowfullscreen
+                            referrerpolicy="no-referrer-when-downgrade"
+                            src="">
+                        </iframe>
+                    </div>
                 </div>
             </div>
         </div>
+        
+        <div class="info-section">
+            <div class="info-box" id="info-what">
+                <h3>What is This?</h3>
+                <p>Achan-Detector is a simple tool that notifies you when your dad leaves to pick you up. No more need to call and ask "where are you?"—this portal gives you a live ETA.</p>
+            </div>
+            <div class="info-box" id="info-how">
+                <h3>How It Works</h3>
+                <p>The system uses a live video feed and location tracking via a secure API. When your dad leaves a designated area, the status updates automatically and calculates the estimated time of arrival.</p>
+            </div>
+            <div class="info-box" id="info-use-original">
+                <h3>Use Cases</h3>
+                <p>Perfect for knowing when he's on his way, and also maybe for knowing whether he's at home or not when you're coming in late from a hangout with friends ;)</p>
+            </div>
+        </div>
     </div>
+    
     <script>
-        // Expand/collapse option boxes and handle ETA popup
-        const option1 = document.getElementById('option1');
-        const option2 = document.getElementById('option2');
-        const statusPanel = document.getElementById('statusPanel');
-        const etaPopup = document.getElementById('etaPopup');
+    const option1 = document.getElementById('option1');
+    const option2 = document.getElementById('option2');
+    const etaPopup = document.getElementById('etaPopup');
+    const clockElement = document.getElementById('clock');
+    const mainContentWrapper = document.getElementById('mainContentWrapper');
+    
+    let fatherWasGone = null;
 
-        document.querySelectorAll('.option-box').forEach(box => {
-            box.addEventListener('click', function() {
-                document.querySelectorAll('.option-box').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                // Show ETA popup if option2 is clicked
-                if (this.id === 'option2') {
-                    statusPanel.classList.add('shift-left');
-                    etaPopup.classList.add('show');
-                } else {
-                    statusPanel.classList.remove('shift-left');
-                    etaPopup.classList.remove('show');
-                }
+    function requestNotificationPermission() {
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+    }
+
+    function sendDepartureNotification(eta) {
+        if (Notification.permission === 'granted') {
+            const synth = new Tone.Synth().toDestination();
+            synth.triggerAttackRelease("C5", "8n");
+
+            new Notification('Achan Has Left!', {
+                body: `He is on his way and will arrive in approximately ${eta}.`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/3097/3097136.png'
             });
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        clockElement.textContent = now.toLocaleTimeString();
+    }
+
+    document.querySelectorAll('.option-box').forEach(box => {
+        box.addEventListener('click', function() {
+            if (this.classList.contains('active')) {
+                return;
+            }
+
+            document.querySelectorAll('.option-box').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            updateStatus();
         });
+    });
 
-        // Optionally, expand the first box by default
-        option1.classList.add('active');
+    option1.classList.add('active');
 
-        // Example: Simulate status updates (replace with real API calls)
-        setTimeout(() => {
-            document.getElementById('fatherInsideStatus').innerHTML = 'Father inside the house: <b>Yes</b>';
-            document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>No</b>';
-            document.getElementById('etaInfo').innerHTML = '';
-        }, 2000);
+    async function updateStatus() {
+        try {
+            // **CORRECTED LOGIC**: Removed the redundant 'father-inside' fetch
+            const goneResp = await fetch('http://localhost:8000/status/father-gone');
+            const goneData = await goneResp.json();
+            const isGone = goneData.gone;
 
-        // If father has gone out, show ETA (replace with real Google Maps API call)
-        // setTimeout(() => {
-        //     document.getElementById('fatherInsideStatus').innerHTML = 'Father inside the house: <b>No</b>';
-        //     document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>Gone out</b>';
-        //     document.getElementById('etaInfo').innerHTML = 'Estimated Arrival: <b>15 min</b>';
-        // }, 5000);
+            // Use the 'isGone' status to update BOTH boxes for perfect sync
+            document.getElementById('fatherInsideStatus').innerHTML =
+                'Father inside the house: <b>' + (isGone ? 'No' : 'Yes') + '</b>';
+            
+            document.getElementById('fatherGoneStatus').innerHTML =
+                'Status: <b>' + (isGone ? 'Gone out' : 'Not Gone Out') + '</b>';
+
+            const adviceElement = document.getElementById('lateNightAdvice');
+            if (isGone) {
+                adviceElement.textContent = 'No problem if you come home late, father is not inside.';
+            } else {
+                adviceElement.textContent = 'Be careful coming home late, father is inside the house!';
+            }
+
+            // Notification logic
+            if (fatherWasGone === false && isGone === true) {
+                const etaResp = await fetch('http://localhost:8000/status/eta');
+                const etaData = await etaResp.json();
+                sendDepartureNotification(etaData.eta);
+            }
+            fatherWasGone = isGone;
+
+            // Popup and layout logic
+            if (isGone && option2.classList.contains('active')) {
+                const etaResp = await fetch('http://localhost:8000/status/eta');
+                const etaData = await etaResp.json();
+
+                document.getElementById('etaInfo').innerHTML =
+                    `<div>Estimated Arrival: <b>${etaData.eta}</b></div>
+                     <div>Distance: <b>${etaData.distance}</b></div>`;
+
+                document.getElementById('popupEta').textContent = etaData.eta;
+                document.getElementById('popupDistance').innerHTML = `Distance: <b>${etaData.distance}</b>`;
+
+                const mapsFrame = document.getElementById('mapsFrame');
+                const apiKey = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g";
+                const newMapUrl = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(etaData.origin)}&destination=${encodeURIComponent(etaData.destination)}&mode=driving`;
+                
+                if (mapsFrame.src !== newMapUrl) {
+                    mapsFrame.src = newMapUrl;
+                }
+
+                etaPopup.classList.add('show');
+                mainContentWrapper.classList.add('popup-active');
+
+            } else {
+                document.getElementById('etaInfo').innerHTML = '';
+                document.getElementById('popupEta').textContent = 'N/A';
+                document.getElementById('popupDistance').innerHTML = 'Distance: <b>N/A</b>';
+                document.getElementById('mapsFrame').src = '';
+
+                etaPopup.classList.remove('show');
+                mainContentWrapper.classList.remove('popup-active');
+            }
+        } catch (error) {
+            console.error("Failed to fetch status:", error);
+            document.getElementById('fatherInsideStatus').innerHTML = 'Father inside the house: <b>Error</b>';
+            document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>Error</b>';
+        }
+    }
+
+    window.addEventListener('mousemove', e => {
+        document.body.style.setProperty('--x', e.clientX + 'px');
+        document.body.style.setProperty('--y', e.clientY + 'px');
+    });
+
+    requestNotificationPermission();
+    updateStatus();
+    updateClock();
+
+    setInterval(updateStatus, 10000);
+    setInterval(updateClock, 1000);
     </script>
 </body>
 </html>
-system architecture 
-mechanism for sample pick and place manipulator
-hardware identification system
-BOM
