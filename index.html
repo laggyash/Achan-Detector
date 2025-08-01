@@ -455,8 +455,10 @@
     const etaPopup = document.getElementById('etaPopup');
     const clockElement = document.getElementById('clock');
     const mainContentWrapper = document.getElementById('mainContentWrapper');
-    
-    let fatherWasGone = null;
+    const liveFeed = document.getElementById('liveFeed');
+
+    let departureTime = null;
+    let notificationSent = false;
 
     function requestNotificationPermission() {
         if ('Notification' in window) {
@@ -468,7 +470,6 @@
         if (Notification.permission === 'granted') {
             const synth = new Tone.Synth().toDestination();
             synth.triggerAttackRelease("C5", "8n");
-
             new Notification('Achan Has Left!', {
                 body: `He is on his way and will arrive in approximately ${eta}.`,
                 icon: 'https://cdn-icons-png.flaticon.com/512/3097/3097136.png'
@@ -483,97 +484,80 @@
 
     document.querySelectorAll('.option-box').forEach(box => {
         box.addEventListener('click', function() {
-            if (this.classList.contains('active')) {
-                return;
-            }
-
+            if (this.classList.contains('active')) return;
             document.querySelectorAll('.option-box').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-
-            updateStatus();
+            updateUIBasedOnVideoTime();
         });
     });
 
     option1.classList.add('active');
 
-    async function updateStatus() {
+    async function fetchEtaAndUpdatePopup() {
         try {
-            // **CORRECTED LOGIC**: Removed the redundant 'father-inside' fetch
-            const goneResp = await fetch('http://localhost:8000/status/father-gone');
-            const goneData = await goneResp.json();
-            const isGone = goneData.gone;
+            const etaResp = await fetch('http://localhost:8000/status/eta');
+            const etaData = await etaResp.json();
+            document.getElementById('etaInfo').innerHTML = `<div>ETA: <b>${etaData.eta}</b></div><div>Dist: <b>${etaData.distance}</b></div>`;
+            document.getElementById('popupEta').textContent = etaData.eta;
+            document.getElementById('popupDistance').innerHTML = `Distance: <b>${etaData.distance}</b>`;
+            const mapsFrame = document.getElementById('mapsFrame');
+            const apiKey = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your key
+            const newMapUrl = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(etaData.origin)}&destination=${encodeURIComponent(etaData.destination)}&mode=driving`;
+            if (mapsFrame.src !== newMapUrl) mapsFrame.src = newMapUrl;
+        } catch (error) { console.error("Failed to fetch ETA:", error); }
+    }
 
-            // Use the 'isGone' status to update BOTH boxes for perfect sync
-            document.getElementById('fatherInsideStatus').innerHTML =
-                'Father inside the house: <b>' + (isGone ? 'No' : 'Yes') + '</b>';
-            
-            document.getElementById('fatherGoneStatus').innerHTML =
-                'Status: <b>' + (isGone ? 'Gone out' : 'Not Gone Out') + '</b>';
+    function updateUIBasedOnVideoTime() {
+        const currentTime = liveFeed.currentTime;
+        const isGone = (departureTime !== null && currentTime >= departureTime);
 
-            const adviceElement = document.getElementById('lateNightAdvice');
-            if (isGone) {
-                adviceElement.textContent = 'No problem if you come home late, father is not inside.';
-            } else {
-                adviceElement.textContent = 'Be careful coming home late, father is inside the house!';
-            }
+        document.getElementById('fatherInsideStatus').innerHTML = 'Father inside the house: <b>' + (isGone ? 'No' : 'Yes') + '</b>';
+        document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>' + (isGone ? 'Gone out' : 'Not Gone Out') + '</b>';
+        
+        const adviceElement = document.getElementById('lateNightAdvice');
+        adviceElement.textContent = isGone ? 'No problem if you come home late, father is not inside.' : 'Be careful coming home late, father is inside the house!';
 
-            // Notification logic
-            if (fatherWasGone === false && isGone === true) {
-                const etaResp = await fetch('http://localhost:8000/status/eta');
-                const etaData = await etaResp.json();
-                sendDepartureNotification(etaData.eta);
-            }
-            fatherWasGone = isGone;
+        if (isGone && !notificationSent) {
+            fetchEtaAndUpdatePopup().then(() => {
+                sendDepartureNotification(document.getElementById('popupEta').textContent);
+            });
+            notificationSent = true;
+        } else if (!isGone) {
+            notificationSent = false;
+        }
 
-            // Popup and layout logic
-            if (isGone && option2.classList.contains('active')) {
-                const etaResp = await fetch('http://localhost:8000/status/eta');
-                const etaData = await etaResp.json();
-
-                document.getElementById('etaInfo').innerHTML =
-                    `<div>Estimated Arrival: <b>${etaData.eta}</b></div>
-                     <div>Distance: <b>${etaData.distance}</b></div>`;
-
-                document.getElementById('popupEta').textContent = etaData.eta;
-                document.getElementById('popupDistance').innerHTML = `Distance: <b>${etaData.distance}</b>`;
-
-                const mapsFrame = document.getElementById('mapsFrame');
-                const apiKey = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g";
-                const newMapUrl = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(etaData.origin)}&destination=${encodeURIComponent(etaData.destination)}&mode=driving`;
-                
-                if (mapsFrame.src !== newMapUrl) {
-                    mapsFrame.src = newMapUrl;
-                }
-
-                etaPopup.classList.add('show');
-                mainContentWrapper.classList.add('popup-active');
-
-            } else {
-                document.getElementById('etaInfo').innerHTML = '';
-                document.getElementById('popupEta').textContent = 'N/A';
-                document.getElementById('popupDistance').innerHTML = 'Distance: <b>N/A</b>';
-                document.getElementById('mapsFrame').src = '';
-
-                etaPopup.classList.remove('show');
-                mainContentWrapper.classList.remove('popup-active');
-            }
-        } catch (error) {
-            console.error("Failed to fetch status:", error);
-            document.getElementById('fatherInsideStatus').innerHTML = 'Father inside the house: <b>Error</b>';
-            document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>Error</b>';
+        if (isGone && option2.classList.contains('active')) {
+            if (!document.getElementById('etaInfo').innerHTML) fetchEtaAndUpdatePopup();
+            etaPopup.classList.add('show');
+            mainContentWrapper.classList.add('popup-active');
+        } else {
+            document.getElementById('etaInfo').innerHTML = '';
+            etaPopup.classList.remove('show');
+            mainContentWrapper.classList.remove('popup-active');
         }
     }
 
+    async function initialize() {
+        try {
+            const response = await fetch('http://localhost:8000/departure-info');
+            const data = await response.json();
+            departureTime = data.departure_time;
+            console.log(`Departure time set to: ${departureTime} seconds`);
+            updateUIBasedOnVideoTime();
+        } catch (error) {
+            console.error("Failed to fetch departure info:", error);
+        }
+    }
+
+    liveFeed.addEventListener('timeupdate', updateUIBasedOnVideoTime);
     window.addEventListener('mousemove', e => {
         document.body.style.setProperty('--x', e.clientX + 'px');
         document.body.style.setProperty('--y', e.clientY + 'px');
     });
 
     requestNotificationPermission();
-    updateStatus();
+    initialize();
     updateClock();
-
-    setInterval(updateStatus, 10000);
     setInterval(updateClock, 1000);
     </script>
 </body>

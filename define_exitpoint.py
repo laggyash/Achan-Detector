@@ -1,12 +1,13 @@
 import cv2
 import json
 
-VIDEO_PATH = "uploads/Footage1.mov"
+VIDEO_PATH = "myvideo.mp4"
 SAVE_PATH = "exit_point.json"
 
 drawing = False
 ix, iy = -1, -1
 roi_coords = None
+frame = None
 
 def draw_rectangle(event, x, y, flags, param):
     global ix, iy, drawing, roi_coords, frame
@@ -42,7 +43,7 @@ def main():
     cv2.namedWindow("Calibrate Exit Point")
     cv2.setMouseCallback("Calibrate Exit Point", draw_rectangle)
 
-    print("Draw rectangle around GATE area and press 's' to save.")
+    print("Draw a rectangle around the gate area and press 's' to save.")
 
     while True:
         cv2.imshow("Calibrate Exit Point", frame)
