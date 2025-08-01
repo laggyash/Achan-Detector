@@ -26,23 +26,22 @@ The solution? Achan-Detector uses my trusty old Raspberry Pi and my home CCTV ca
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- [Python, HTML, CSS, JavaScript]
+- [FastAPI (for the backend API)]
+- [Python: requests (for making API calls), ultralytics (for YOLO object detection), opencv-python (for video processing), python-dotenv (for managing environment variables)
+JavaScript: Tone.js (for sound effects)]
+- [YOLOv8n (pre-trained object detection model), Google Maps Directions API]
 
 For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+- [ A camera (like a webcam or security camera) capable of providing a video feed.]
 
 ### Implementation
 For Software:
 # Installation
-[commands]
+[pip install fastapi uvicorn python-dotenv requests opencv-python ultralytics]
 
 # Run
-[commands]
+[uvicorn api:app --reload]
 
 ### Project Documentation
 For Software:
@@ -58,27 +57,13 @@ For Software:
 *Add caption explaining what this shows*
 
 # Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
+![Nil]
 
 # Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
+![Nil]
 
 # Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
+![Nil]
 
 ### Project Demo
 # Video
@@ -89,9 +74,9 @@ For Hardware:
 [Add any extra demo materials/links]
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- [Aswin]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
+- [Fahim]: [ API creation with FastAPI and all frontend development, including the HTML, CSS, and dynamic JavaScript functionality.]
+
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
