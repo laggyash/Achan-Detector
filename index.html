@@ -1,25 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Achan Detector Live Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <style>
-        /* --- Deep Dark Mode --- */
+        /* --- Base Styles --- */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --dark-bg: #0d1117;
+            --medium-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-color: #34e7f9;
+            --success-color: #238636;
+            --error-color: #f85149;
+        }
 
         body {
             font-family: 'Poppins', Arial, sans-serif;
-            background: linear-gradient(135deg, #0d1117, #161b22, #0d1117, #222b38);
+            background: linear-gradient(135deg, var(--dark-bg), var(--medium-bg), var(--dark-bg), #222b38);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             margin: 0;
             padding: 20px;
             min-height: 100vh;
-            color: #e6edf3;
+            color: var(--text-primary);
         }
-        
+
         body::before {
             content: '';
             position: fixed;
@@ -29,27 +41,31 @@
             height: 100%;
             pointer-events: none;
             z-index: -1;
-            background: radial-gradient(
-                600px circle at var(--x, 0px) var(--y, 0px), 
-                rgba(52, 231, 249, 0.15),
-                transparent 40%
-            );
+            background: radial-gradient(600px circle at var(--x, 0px) var(--y, 0px),
+                    rgba(52, 231, 249, 0.15),
+                    transparent 40%);
         }
 
         @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
-        
+
         .header-container {
             background-color: rgba(13, 17, 23, 0.5);
-            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 10px 10px;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 20px 30px;
-            margin: 30px auto 60px auto;
+            margin: 30px auto;
             max-width: 1184px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
@@ -62,7 +78,7 @@
             flex-wrap: wrap;
             gap: 20px;
         }
-        
+
         .header-left {
             display: flex;
             align-items: center;
@@ -70,12 +86,12 @@
         }
 
         .header-title {
-            color: #e6edf3;
+            color: var(--text-primary);
             font-size: 1.75rem;
             font-weight: 600;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
             margin: 0;
         }
+
         .live-indicator {
             display: flex;
             align-items: center;
@@ -87,8 +103,8 @@
             font-size: 0.9rem;
             font-weight: 600;
             border: 1px solid rgba(255, 0, 0, 0.3);
-            flex-shrink: 0;
         }
+
         .live-dot {
             width: 10px;
             height: 10px;
@@ -96,21 +112,178 @@
             border-radius: 50%;
             animation: blink 1.5s infinite;
         }
+
         .clock {
-            color: #8b949e;
+            color: var(--text-secondary);
             font-size: 1.1rem;
             font-weight: 500;
             background-color: rgba(33, 38, 45, 0.5);
             padding: 8px 16px;
             border-radius: 8px;
-            border: 1px solid #30363d;
-            flex-shrink: 0;
+            border: 1px solid var(--border-color);
         }
+
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
-        
+
+        /* --- Setup Section Styles --- */
+        .setup-container {
+            background-color: var(--medium-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 0 auto 40px auto;
+            width: 100%;
+            max-width: 1184px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        .setup-toggle {
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setup-toggle:hover {
+            background-color: rgba(52, 231, 249, 0.1);
+        }
+
+        .setup-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out;
+        }
+
+        .setup-content.open {
+            max-height: 2000px;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .setup-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .setup-box {
+            background: var(--dark-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .setup-box h2 {
+            font-size: 1.3rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #010409;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+
+        .setup-button {
+            background-color: var(--success-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .setup-button:hover {
+            background-color: #2ea043;
+        }
+
+        .setup-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .status-message.success {
+            background-color: rgba(35, 134, 54, 0.3);
+            color: #56d364;
+        }
+
+        .status-message.error {
+            background-color: rgba(248, 81, 73, 0.3);
+            color: #f85149;
+        }
+
+        #frame-container {
+            position: relative;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        #videoFrame {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            background-color: #010409;
+        }
+
+        #drawCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        /* --- Main Content Styles --- */
         .main-content-wrapper {
             display: flex;
             justify-content: center;
@@ -138,138 +311,133 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border-color);
         }
+
         .controls-column {
             display: flex;
             flex-direction: column;
             width: 420px;
             max-width: 100%;
         }
+
         .status-panel {
             background: rgba(22, 27, 34, 0.7);
             border-radius: 18px;
-            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2), inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2);
             width: 100%;
             padding: 36px 28px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center;
             backdrop-filter: blur(10px);
-            border: 1.5px solid #30363d;
+            border: 1.5px solid var(--border-color);
             box-sizing: border-box;
         }
+
         .option-box {
             background: rgba(13, 17, 23, 0.5);
-            border: 1.5px solid #30363d;
+            border: 1.5px solid var(--border-color);
             border-radius: 14px;
             padding: 18px 20px;
             cursor: pointer;
-            transition: border 0.2s, background 0.2s, transform 0.2s, box-shadow 0.3s;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
             width: 100%;
             max-width: 350px;
             color: #c9d1d9;
             box-sizing: border-box;
-            margin-bottom: 24px;
+            margin: 0 auto 24px auto;
         }
+
         .option-box:last-child {
             margin-bottom: 0;
         }
+
         .option-box:hover {
             transform: translateY(-2px);
             background: rgba(33, 38, 45, 0.7);
             box-shadow: 0 0 15px rgba(52, 231, 249, 0.2);
         }
+
         .option-box.active {
-            border: 1.5px solid #34e7f9;
+            border: 1.5px solid var(--accent-color);
             background: rgba(33, 38, 45, 1);
-            color: #e6edf3;
-            box-shadow: 0 0 20px rgba(52, 231, 249, 0.3);
+            color: var(--text-primary);
         }
+
         .option-title {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #e6edf3;
             display: flex;
             align-items: center;
             gap: 12px;
         }
+
         .option-title svg {
             width: 20px;
             height: 20px;
             flex-shrink: 0;
         }
+
         .option-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(.4,0,.2,1), padding 0.3s;
-            padding-top: 0;
-            color: #c9d1d9;
+            transition: max-height 0.4s ease-in-out, padding 0.3s;
         }
+
         .option-box.active .option-content {
             max-height: 120px;
             padding-top: 12px;
         }
+
         .status {
             font-size: 1.05rem;
             margin-bottom: 10px;
-            color: #e6edf3;
         }
+
         .eta {
             font-size: 1rem;
-            color: #34e7f9;
+            color: var(--accent-color);
             font-weight: 600;
         }
+
         .eta-popup {
             background: rgba(22, 27, 34, 0.9);
             border-radius: 16px;
-            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2), inset 0 0 0 1.5px rgba(255, 255, 255, 0.05);
             color: #c9d1d9;
             z-index: 10;
             backdrop-filter: blur(10px);
-            border: 1.5px solid #30363d;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            width: 100%;
-            box-sizing: border-box;
+            border: 1.5px solid var(--border-color);
             max-height: 0;
             opacity: 0;
             overflow: hidden;
             padding: 0 28px;
             border-width: 0;
-            transition: all 0.5s cubic-bezier(.4,0,.2,1);
+            transition: all 0.5s ease-in-out;
             margin-top: 24px;
         }
+
         .eta-popup.show {
             max-height: 500px;
             opacity: 1;
             padding: 32px 28px;
             border-width: 1.5px;
         }
+
         .eta-popup-title {
             font-size: 1.15rem;
             font-weight: 600;
             margin-bottom: 10px;
-            color: #e6edf3;
         }
-        .eta-popup-content {
-            font-size: 1rem;
-            color: #c9d1d9;
-        }
+
         .map-embed {
             margin-top: 16px;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             width: 100%;
             height: 180px;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border-color);
         }
-        
+
+        /* --- Info Section Styles (Restored) --- */
         .info-section {
             display: flex;
             justify-content: center;
@@ -278,18 +446,35 @@
             margin-top: 60px;
             width: 100%;
         }
-        
+
         .info-box {
             background: rgba(13, 17, 23, 0.5);
-            border: 1px solid #30363d;
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 24px;
             flex: 1;
             min-width: 300px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
             transition: all 0.4s ease;
         }
 
+        .info-box h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Logic for swapping info boxes */
         #info-use-filler {
             max-height: 0;
             opacity: 0;
@@ -304,25 +489,11 @@
             opacity: 1;
             padding: 24px;
             border-width: 1px;
+            margin-top: 0;
         }
 
         .main-content-wrapper.popup-active #info-use-original {
             display: none;
-        }
-
-        .info-box h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: #e6edf3;
-            border-bottom: 1px solid #34e7f9;
-            padding-bottom: 8px;
-            margin-bottom: 16px;
-        }
-        .info-box p {
-            margin: 0;
-            color: #8b949e;
-            font-size: 0.95rem;
-            line-height: 1.6;
         }
 
         /* Responsive */
@@ -331,35 +502,40 @@
                 flex-direction: column;
                 align-items: center;
             }
-            .video-column {
-                width: 100%;
-            }
-            .video-portal {
-                width: 100%;
-                height: 56.25vw;
-            }
+
+            .video-column,
             .controls-column {
                 width: 100%;
             }
+
+            .video-portal {
+                height: 56.25vw;
+            }
         }
+
         @media (max-width: 600px) {
             .header {
                 gap: 12px;
                 justify-content: center;
             }
+
             .header-title {
                 font-size: 1.5rem;
                 order: 2;
             }
-            .live-indicator {
+
+            .live-indicator,
+            .setup-toggle {
                 order: 1;
             }
+
             .clock {
                 order: 3;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="header-container">
         <div class="header">
@@ -370,21 +546,69 @@
                 </div>
                 <h1 class="header-title">Achan Detector Portal</h1>
             </div>
+            <button class="setup-toggle" id="setupToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                    </path>
+                </svg>
+                <span>Setup</span>
+            </button>
             <div class="clock" id="clock">00:00:00</div>
+        </div>
+    </div>
+
+    <div class="setup-container">
+        <div class="setup-content" id="setupContent">
+            <div class="setup-grid">
+                <div class="setup-box">
+                    <h2>1. Upload & Define Exit</h2>
+                    <div class="input-group">
+                        <label for="videoUpload">Select video file:</label>
+                        <input type="file" id="videoUpload" accept="video/mp4,video/webm,video/ogg">
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: -10px;">After selecting,
+                        click and drag on the frame below to draw the exit area.</p>
+                    <div id="frame-container">
+                        <video id="videoFrame" muted playsinline></video>
+                        <canvas id="drawCanvas"></canvas>
+                    </div>
+                    <br>
+                    <button id="saveSetupButton" class="setup-button" disabled>Save Video & Exit Point</button>
+                    <div id="uploadStatus" class="status-message"></div>
+                </div>
+                <div class="setup-box">
+                    <h2>2. Set ETA Locations</h2>
+                    <div class="input-group">
+                        <label for="origin">Origin (Father's starting point)</label>
+                        <input type="text" id="origin" placeholder="e.g., Ernakulam Metro Station, Kochi">
+                    </div>
+                    <div class="input-group">
+                        <label for="destination">Destination (Your pickup point)</label>
+                        <input type="text" id="destination" placeholder="e.g., MITS College, Varikoli">
+                    </div>
+                    <button id="saveConfigButton" class="setup-button">Save Locations</button>
+                    <div id="configStatus" class="status-message"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="main-content-wrapper" id="mainContentWrapper">
         <div class="video-column">
             <div class="video-portal">
-                <video id="liveFeed" width="100%" height="100%" controls autoplay loop style="border-radius:24px;object-fit:cover;">
-                    <source src="myvideo.mp4" type="video/mp4">
+                <video id="liveFeed" width="100%" height="100%" controls autoplay loop muted
+                    style="border-radius:24px;object-fit:cover;">
+                    <source src="uploads/video.mp4" type="video/mp4"
+                        onerror="this.parentElement.innerHTML = '<div style=\'color: var(--text-secondary); text-align: center;\'>Video not found or failed to load.<br>Please configure a video in the Setup panel.</div>';">
                     Your browser does not support the video tag.
                 </video>
             </div>
             <div class="info-box" id="info-use-filler">
                 <h3>Use Cases</h3>
-                <p>Perfect for knowing when he's on his way, and also maybe for knowing whether he's at home or not when you're coming in late from a hangout with friends ;)</p>
+                <p>Perfect for knowing when he's on his way, and also maybe for knowing whether he's at home or not when
+                    you're coming in late from a hangout with friends ;)</p>
             </div>
         </div>
 
@@ -392,7 +616,9 @@
             <div class="status-panel" id="statusPanel">
                 <div class="option-box" id="option1">
                     <div class="option-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                        </svg>
                         <span>Is it a problem if I come late?</span>
                     </div>
                     <div class="option-content">
@@ -402,163 +628,337 @@
                 </div>
                 <div class="option-box" id="option2">
                     <div class="option-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11C5.84 5 5.28 5.42 5.08 6.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
-                        <span>Has father gone out?</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11C5.84 5 5.28 5.42 5.08 6.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
+                        </svg>
+                        <span>Has father left to pick you?</span>
                     </div>
                     <div class="option-content">
                         <div class="status" id="fatherGoneStatus">Status: <b>Unknown</b></div>
                         <div class="eta" id="etaInfo"></div>
-                        <div style="color:#8b949e; font-size:0.9rem;">If gone out, an ETA will be shown.</div>
                     </div>
                 </div>
             </div>
             <div class="eta-popup" id="etaPopup">
                 <div class="eta-popup-title">Father's Estimated Arrival</div>
                 <div class="eta-popup-content" id="etaPopupContent">
-                    <span id="popupEta" style="font-size:1.4rem;color:#34e7f9;font-weight:600;">N/A</span><br>
+                    <span id="popupEta"
+                        style="font-size:1.4rem;color:var(--accent-color);font-weight:600;">N/A</span><br>
                     <span id="popupDistance">Distance: <b>N/A</b></span>
                     <div class="map-embed">
-                        <iframe
-                            id="mapsFrame"
-                            width="100%"
-                            height="180"
-                            style="border:0;"
-                            loading="lazy"
-                            allowfullscreen
-                            referrerpolicy="no-referrer-when-downgrade"
-                            src="">
-                        </iframe>
+                        <iframe id="mapsFrame" width="100%" height="180" style="border:0;" loading="lazy"
+                            allowfullscreen referrerpolicy="no-referrer-when-downgrade" src=""></iframe>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="info-section">
             <div class="info-box" id="info-what">
                 <h3>What is This?</h3>
-                <p>Achan-Detector is a simple tool that notifies you when your dad leaves to pick you up. No more need to call and ask "where are you?"—this portal gives you a live ETA.</p>
+                <p>Achan-Detector is a simple tool that notifies you when your dad leaves to pick you up. No more need
+                    to call and ask "where are you?"—this portal gives you a live ETA.</p>
             </div>
             <div class="info-box" id="info-how">
                 <h3>How It Works</h3>
-                <p>The system uses a live video feed and location tracking via a secure API. When your dad leaves a designated area, the status updates automatically and calculates the estimated time of arrival.</p>
+                <p>The system uses a live video feed and location tracking via a secure API. When your dad leaves a
+                    designated area (that you define in Setup), the status updates automatically and calculates the ETA.
+                </p>
             </div>
             <div class="info-box" id="info-use-original">
                 <h3>Use Cases</h3>
-                <p>Perfect for knowing when he's on his way, and also maybe for knowing whether he's at home or not when you're coming in late from a hangout with friends ;)</p>
+                <p>Perfect for knowing when he's on his way, and also maybe for knowing whether he's at home or not when
+                    you're coming in late from a hangout with friends ;)</p>
             </div>
         </div>
     </div>
-    
+
     <script>
-    const option1 = document.getElementById('option1');
-    const option2 = document.getElementById('option2');
-    const etaPopup = document.getElementById('etaPopup');
-    const clockElement = document.getElementById('clock');
-    const mainContentWrapper = document.getElementById('mainContentWrapper');
-    const liveFeed = document.getElementById('liveFeed');
+        // --- Constants and Global State ---
+        const API_BASE_URL = "http://localhost:8000";
+        let departureTime = null;
+        let notificationSent = false;
+        const GOOGLE_MAPS_API_KEY = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g"; // IMPORTANT: Replace with your key
 
-    let departureTime = null;
-    let notificationSent = false;
+        // --- Main Portal Elements ---
+        const option1 = document.getElementById('option1');
+        const option2 = document.getElementById('option2');
+        const etaPopup = document.getElementById('etaPopup');
+        const clockElement = document.getElementById('clock');
+        const mainContentWrapper = document.getElementById('mainContentWrapper');
+        const liveFeed = document.getElementById('liveFeed');
 
-    function requestNotificationPermission() {
-        if ('Notification' in window) {
-            Notification.requestPermission();
+        // --- Setup Section Elements ---
+        const setupToggle = document.getElementById('setupToggle');
+        const setupContent = document.getElementById('setupContent');
+        const videoUpload = document.getElementById('videoUpload');
+        const videoFrame = document.getElementById('videoFrame');
+        const saveSetupButton = document.getElementById('saveSetupButton');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const originInput = document.getElementById('origin');
+        const destinationInput = document.getElementById('destination');
+        const saveConfigButton = document.getElementById('saveConfigButton');
+        const configStatus = document.getElementById('configStatus');
+
+        // --- Canvas Drawing Elements & State ---
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        let rect = {};
+        let drag = false;
+        let exitPointDefined = false;
+
+        // --- Utility Functions ---
+        function showStatus(element, message, isError = false) {
+            element.textContent = message;
+            element.className = 'status-message';
+            element.classList.add(isError ? 'error' : 'success');
+            element.style.display = 'block';
         }
-    }
 
-    function sendDepartureNotification(eta) {
-        if (Notification.permission === 'granted') {
-            const synth = new Tone.Synth().toDestination();
-            synth.triggerAttackRelease("C5", "8n");
-            new Notification('Achan Has Left!', {
-                body: `He is on his way and will arrive in approximately ${eta}.`,
-                icon: 'https://cdn-icons-png.flaticon.com/512/3097/3097136.png'
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
+        }
+
+        function sendDepartureNotification(eta) {
+            if (Notification.permission === 'granted') {
+                try {
+                    const synth = new Tone.Synth().toDestination();
+                    synth.triggerAttackRelease("C5", "8n");
+                } catch (e) { console.error("Tone.js error:", e); }
+                new Notification('Achan Has Left!', {
+                    body: `He is on his way and will arrive in approximately ${eta}.`,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/3097/3097136.png'
+                });
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Kolkata' });
+            clockElement.textContent = timeString;
+        }
+
+        // --- Main Portal Logic ---
+        async function fetchEtaAndUpdatePopup() {
+            try {
+                const etaResp = await fetch(`${API_BASE_URL}/status/eta`);
+                if (!etaResp.ok) {
+                    const err = await etaResp.json();
+                    throw new Error(err.detail || "Failed to get ETA");
+                }
+                const etaData = await etaResp.json();
+                document.getElementById('etaInfo').innerHTML = `ETA: <b>${etaData.eta}</b>`;
+                document.getElementById('popupEta').textContent = etaData.eta;
+                document.getElementById('popupDistance').innerHTML = `Distance: <b>${etaData.distance}</b>`;
+                const mapsFrame = document.getElementById('mapsFrame');
+                const newMapUrl = `https://www.google.com/maps/embed/v1/directions?key=${GOOGLE_MAPS_API_KEY}&origin=${encodeURIComponent(etaData.origin)}&destination=${encodeURIComponent(etaData.destination)}&mode=driving`;
+                if (mapsFrame.src !== newMapUrl) mapsFrame.src = newMapUrl;
+            } catch (error) {
+                console.error("Failed to fetch ETA:", error);
+                document.getElementById('etaInfo').innerHTML = `<span style="color:var(--error-color);">Error: ${error.message}</span>`;
+            }
+        }
+
+        function updateUIBasedOnVideoTime() {
+            if (departureTime === null) return;
+            const currentTime = liveFeed.currentTime;
+            const isGone = currentTime >= departureTime;
+
+            document.getElementById('fatherInsideStatus').innerHTML = 'Is father at home?: <b>' + (isGone ? 'No' : 'Yes') + '</b>';
+            document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>' + (isGone ? 'Yes' : 'Not yet') + '</b>';
+            document.getElementById('lateNightAdvice').textContent = isGone ? 'Coast is clear! You can come home late.' : 'Be careful, father is inside the house.';
+
+            // Show/hide ETA info based on status
+            const etaInfo = document.getElementById('etaInfo');
+            if (isGone) {
+                etaInfo.style.display = '';
+            } else {
+                etaInfo.style.display = 'none';
+            }
+
+            if (isGone && !notificationSent) {
+                fetchEtaAndUpdatePopup().then(() => {
+                    sendDepartureNotification(document.getElementById('popupEta').textContent);
+                    notificationSent = true;
+                });
+            } else if (!isGone) {
+                notificationSent = false;
+            }
+
+            if (isGone && option2.classList.contains('active')) {
+                mainContentWrapper.classList.add('popup-active');
+                etaPopup.classList.add('show');
+            } else {
+                mainContentWrapper.classList.remove('popup-active');
+                etaPopup.classList.remove('show');
+            }
+        }
+
+        async function initializePortal() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/departure-info`);
+                if (!response.ok) {
+                    const err = await response.json();
+                    console.error("Initialization Error:", err.detail);
+                    document.getElementById('lateNightAdvice').textContent = "Error initializing. Check console.";
+                    return;
+                }
+                const data = await response.json();
+                departureTime = data.departure_time;
+                if (departureTime !== null) {
+                    console.log(`Departure time set to: ${departureTime.toFixed(2)} seconds`);
+                    updateUIBasedOnVideoTime();
+                } else {
+                    console.log("No departure detected in the configured video, or video/exit point not set.");
+                    document.getElementById('lateNightAdvice').textContent = "Awaiting departure detection...";
+                }
+            } catch (error) {
+                console.error("Failed to fetch departure info:", error);
+                document.getElementById('lateNightAdvice').textContent = "Could not connect to server.";
+            }
+        }
+
+        // --- Setup Section Logic ---
+        function initCanvasListeners() {
+            canvas.addEventListener('mousedown', mouseDown);
+            canvas.addEventListener('mouseup', mouseUp);
+            canvas.addEventListener('mousemove', mouseMove);
+        }
+
+        function mouseDown(e) {
+            const canvasRect = canvas.getBoundingClientRect();
+            rect.startX = e.clientX - canvasRect.left;
+            rect.startY = e.clientY - canvasRect.top;
+            drag = true;
+        }
+
+        function mouseUp() {
+            drag = false;
+            exitPointDefined = true;
+            if (videoUpload.files.length > 0) {
+                saveSetupButton.disabled = false;
+            }
+        }
+
+        function mouseMove(e) {
+            if (drag) {
+                const canvasRect = canvas.getBoundingClientRect();
+                rect.w = (e.clientX - canvasRect.left) - rect.startX;
+                rect.h = (e.clientY - canvasRect.top) - rect.startY;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                draw();
+            }
+        }
+
+        function draw() {
+            ctx.strokeStyle = 'var(--accent-color)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([6, 3]);
+            ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
+        }
+
+        // --- Event Listeners ---
+        document.querySelectorAll('.option-box').forEach(box => {
+            box.addEventListener('click', function () {
+                if (this.classList.contains('active')) return;
+                document.querySelectorAll('.option-box').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                updateUIBasedOnVideoTime();
             });
-        }
-    }
-
-    function updateClock() {
-        const now = new Date();
-        clockElement.textContent = now.toLocaleTimeString();
-    }
-
-    document.querySelectorAll('.option-box').forEach(box => {
-        box.addEventListener('click', function() {
-            if (this.classList.contains('active')) return;
-            document.querySelectorAll('.option-box').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            updateUIBasedOnVideoTime();
         });
-    });
 
-    option1.classList.add('active');
+        setupToggle.addEventListener('click', () => {
+            setupContent.classList.toggle('open');
+        });
 
-    async function fetchEtaAndUpdatePopup() {
-        try {
-            const etaResp = await fetch('http://localhost:8000/status/eta');
-            const etaData = await etaResp.json();
-            document.getElementById('etaInfo').innerHTML = `<div>ETA: <b>${etaData.eta}</b></div><div>Dist: <b>${etaData.distance}</b></div>`;
-            document.getElementById('popupEta').textContent = etaData.eta;
-            document.getElementById('popupDistance').innerHTML = `Distance: <b>${etaData.distance}</b>`;
-            const mapsFrame = document.getElementById('mapsFrame');
-            const apiKey = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your key
-            const newMapUrl = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(etaData.origin)}&destination=${encodeURIComponent(etaData.destination)}&mode=driving`;
-            if (mapsFrame.src !== newMapUrl) mapsFrame.src = newMapUrl;
-        } catch (error) { console.error("Failed to fetch ETA:", error); }
-    }
+        videoUpload.addEventListener('change', () => {
+            if (!videoUpload.files || videoUpload.files.length === 0) return;
+            const file = videoUpload.files[0];
+            const fileURL = URL.createObjectURL(file);
+            videoFrame.src = fileURL;
+            videoFrame.onloadedmetadata = () => {
+                canvas.width = videoFrame.clientWidth;
+                canvas.height = videoFrame.clientHeight;
+                videoFrame.currentTime = 0.1;
+            };
+            if (exitPointDefined) saveSetupButton.disabled = false;
+        });
 
-    function updateUIBasedOnVideoTime() {
-        const currentTime = liveFeed.currentTime;
-        const isGone = (departureTime !== null && currentTime >= departureTime);
+        saveSetupButton.addEventListener('click', async () => {
+            if (!videoUpload.files || videoUpload.files.length === 0) {
+                showStatus(uploadStatus, 'Please select a video file first.', true);
+                return;
+            }
+            if (!exitPointDefined) {
+                showStatus(uploadStatus, 'Please draw an exit area on the video frame.', true);
+                return;
+            }
 
-        document.getElementById('fatherInsideStatus').innerHTML = 'Father inside the house: <b>' + (isGone ? 'No' : 'Yes') + '</b>';
-        document.getElementById('fatherGoneStatus').innerHTML = 'Status: <b>' + (isGone ? 'Gone out' : 'Not Gone Out') + '</b>';
-        
-        const adviceElement = document.getElementById('lateNightAdvice');
-        adviceElement.textContent = isGone ? 'No problem if you come home late, father is not inside.' : 'Be careful coming home late, father is inside the house!';
+            const videoFormData = new FormData();
+            videoFormData.append('video', videoUpload.files[0]);
+            showStatus(uploadStatus, 'Uploading video...');
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload-video`, { method: 'POST', body: videoFormData });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail || 'Upload failed');
 
-        if (isGone && !notificationSent) {
-            fetchEtaAndUpdatePopup().then(() => {
-                sendDepartureNotification(document.getElementById('popupEta').textContent);
-            });
-            notificationSent = true;
-        } else if (!isGone) {
-            notificationSent = false;
-        }
+                showStatus(uploadStatus, result.message + ' Now saving exit point...');
 
-        if (isGone && option2.classList.contains('active')) {
-            if (!document.getElementById('etaInfo').innerHTML) fetchEtaAndUpdatePopup();
-            etaPopup.classList.add('show');
-            mainContentWrapper.classList.add('popup-active');
-        } else {
-            document.getElementById('etaInfo').innerHTML = '';
-            etaPopup.classList.remove('show');
-            mainContentWrapper.classList.remove('popup-active');
-        }
-    }
+                const scaleX = videoFrame.videoWidth / videoFrame.clientWidth;
+                const scaleY = videoFrame.videoHeight / videoFrame.clientHeight;
+                const scaledRect = [
+                    rect.startX * scaleX, rect.startY * scaleY,
+                    (rect.startX + rect.w) * scaleX, (rect.startY + rect.h) * scaleY
+                ];
+                const exitPointFormData = new FormData();
+                exitPointFormData.append('exit_point', JSON.stringify(scaledRect));
 
-    async function initialize() {
-        try {
-            const response = await fetch('http://localhost:8000/departure-info');
-            const data = await response.json();
-            departureTime = data.departure_time;
-            console.log(`Departure time set to: ${departureTime} seconds`);
-            updateUIBasedOnVideoTime();
-        } catch (error) {
-            console.error("Failed to fetch departure info:", error);
-        }
-    }
+                const exitResponse = await fetch(`${API_BASE_URL}/save-exit-point`, { method: 'POST', body: exitPointFormData });
+                const exitResult = await exitResponse.json();
+                if (!exitResponse.ok) throw new Error(exitResult.detail || 'Failed to save exit point');
 
-    liveFeed.addEventListener('timeupdate', updateUIBasedOnVideoTime);
-    window.addEventListener('mousemove', e => {
-        document.body.style.setProperty('--x', e.clientX + 'px');
-        document.body.style.setProperty('--y', e.clientY + 'px');
-    });
+                showStatus(uploadStatus, 'Video and exit point saved successfully! Reloading page to apply changes...');
+                setTimeout(() => window.location.reload(), 2000);
 
-    requestNotificationPermission();
-    initialize();
-    updateClock();
-    setInterval(updateClock, 1000);
+            } catch (error) {
+                showStatus(uploadStatus, `Error: ${error.message}`, true);
+            }
+        });
+
+        saveConfigButton.addEventListener('click', async () => {
+            const formData = new FormData();
+            formData.append('origin', originInput.value);
+            formData.append('destination', destinationInput.value);
+            try {
+                const response = await fetch(`${API_BASE_URL}/save-config`, { method: 'POST', body: formData });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail || 'Failed to save');
+                showStatus(configStatus, result.message);
+            } catch (error) {
+                showStatus(configStatus, `Error: ${error.message}`, true);
+            }
+        });
+
+        liveFeed.addEventListener('timeupdate', updateUIBasedOnVideoTime);
+
+        window.addEventListener('mousemove', e => {
+            document.body.style.setProperty('--x', e.clientX + 'px');
+            document.body.style.setProperty('--y', e.clientY + 'px');
+        });
+
+        // --- Initializations ---
+        document.addEventListener('DOMContentLoaded', () => {
+            option1.classList.add('active');
+            requestNotificationPermission();
+            initializePortal();
+            updateClock();
+            setInterval(updateClock, 1000);
+            initCanvasListeners();
+        });
     </script>
 </body>
+
 </html>

@@ -125,3 +125,9 @@ uploads/
 debug_frames/
 yolov8n.pt
 exit_point.json
+detector.py
+define_exitpoint.py
+config.json
+modules/
+departure_time.json
+api.py

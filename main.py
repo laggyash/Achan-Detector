@@ -1,35 +1,63 @@
 import os
 import json
 import cv2
-from fastapi import FastAPI
+import shutil
+from typing import Tuple, List, Dict
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from ultralytics import YOLO
 
-# --- Configuration ---
+# --- Constants and Configuration ---
 MODEL = YOLO("yolov8n.pt")
-VIDEO_PATH = "myvideo.mp4"
-EXIT_BOX_FILE = "exit_point.json"
-GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"  # IMPORTANT: Replace with your key
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# --- FastAPI App Initialization ---
+VIDEO_PATH = os.path.join(UPLOAD_DIR, "video.mp4")
+EXIT_BOX_FILE = "exit_point.json"
+CONFIG_FILE = "config.json"
+
+# It's highly recommended to use environment variables for API keys
+Maps_API_KEY = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g" # Replace with your key
+
 app = FastAPI(title="Achan Detector API")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# --- Detection Logic ---
-try:
-    with open(EXIT_BOX_FILE) as f:
-        data = json.load(f)
-        exit_point = tuple(data["exit_point"])
-except FileNotFoundError:
-    print(f"Error: '{EXIT_BOX_FILE}' not found. Please run define_exitpoint.py first.")
-    exit_point = (0, 0, 1, 1) # Default to a tiny box to prevent errors
+# --- Global Cache/State ---
+# Using file-based state is simpler for this use case than in-memory cache
+# that would be lost on server restart.
 
-def at_exit_point(box, threshold=0.5):
-    """Checks if a detected object's bounding box overlaps with the exit point."""
+# --- Helper Functions ---
+
+def load_config() -> Dict[str, str]:
+    """Loads origin/destination config from the JSON file."""
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Return a default or empty config if the file doesn't exist or is invalid
+        return {"origin": "", "destination": ""}
+
+def load_exit_point() -> Tuple[int, int, int, int] | None:
+    """Loads exit point coordinates from the JSON file."""
+    try:
+        with open(EXIT_BOX_FILE, 'r') as f:
+            data = json.load(f)
+            return tuple(data["exit_point"])
+    except (FileNotFoundError, KeyError, IndexError, json.JSONDecodeError):
+        return None
+
+def at_exit_point(box: List[float], exit_point: Tuple[int, int, int, int], threshold: float = 0.5) -> bool:
+    """Checks if a detected box overlaps significantly with the exit point."""
+    if not exit_point: return False
     x1, y1, x2, y2 = map(int, box)
     gx1, gy1, gx2, gy2 = exit_point
     ix1, iy1 = max(x1, gx1), max(y1, gy1)
@@ -39,41 +67,62 @@ def at_exit_point(box, threshold=0.5):
     return box_area > 0 and (inter_area / box_area) > threshold
 
 def get_departure_time(video_path: str) -> float | None:
-    """
-    Analyzes the video to find the timestamp of the first frame
-    where a vehicle is detected at the exit point.
-    Returns the timestamp in seconds, or None if no departure is detected.
-    """
+    """Analyzes a video to find the departure time of a vehicle."""
+    exit_point = load_exit_point()
+    if not exit_point:
+        print("Warning: Exit point not defined. Cannot calculate departure time.")
+        return None
+
+    if not os.path.exists(video_path):
+        print(f"Error: Video file not found at {video_path}")
+        return None
+
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         print(f"Error: Could not open video file at {video_path}")
         return None
 
     fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps == 0:
+        print("Warning: Video FPS is 0. Cannot calculate time.")
+        cap.release()
+        return None
+        
     frame_count = 0
     departure_frame = None
+    FRAME_SKIP_INTERVAL = 10 
+    PROCESSING_SIZE = (640, 480) 
 
     while True:
         ret, frame = cap.read()
-        if not ret:
-            break
+        if not ret: break
+        
         frame_count += 1
-        if frame_count % 5 != 0:  # Process every 5th frame for performance
-            continue
+        if frame_count % FRAME_SKIP_INTERVAL != 0: continue
 
-        results = MODEL(frame, verbose=False)
+        small_frame = cv2.resize(frame, PROCESSING_SIZE)
+        results = MODEL(small_frame, verbose=False)
+        
         for r in results:
             if r.boxes is None: continue
             for box, cls_id in zip(r.boxes.xyxy, r.boxes.cls):
                 if MODEL.names[int(cls_id)] in ["car", "motorcycle", "truck", "bus"]:
-                    if at_exit_point(box):
+                    orig_h, orig_w, _ = frame.shape
+                    proc_w, proc_h = PROCESSING_SIZE
+                    gx1, gy1, gx2, gy2 = exit_point
+                    
+                    scaled_exit_point = (
+                        int(gx1 * (proc_w / orig_w)), int(gy1 * (proc_h / orig_h)),
+                        int(gx2 * (proc_w / orig_w)), int(gy2 * (proc_h / orig_h))
+                    )
+
+                    if at_exit_point(box, scaled_exit_point):
                         departure_frame = frame_count
                         break
-            if departure_frame:
-                break
+            if departure_frame: break
     cap.release()
 
-    if departure_frame and fps > 0:
+    if departure_frame:
         departure_time = departure_frame / fps
         print(f"[Detection] Departure detected at {departure_time:.2f} seconds.")
         return departure_time
@@ -82,33 +131,91 @@ def get_departure_time(video_path: str) -> float | None:
     return None
 
 # --- API Endpoints ---
-departure_info_cache = None
+
+@app.post("/upload-video")
+async def upload_video(video: UploadFile = File(...)):
+    """Handles video upload and saves it, overwriting any existing video."""
+    try:
+        with open(VIDEO_PATH, "wb") as buffer:
+            shutil.copyfileobj(video.file, buffer)
+        # Invalidate departure time cache by deleting it
+        if os.path.exists("departure_time.json"):
+            os.remove("departure_time.json")
+        return {"message": "Video uploaded successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Video upload failed: {e}")
+
+@app.post("/save-exit-point")
+async def save_exit_point(exit_point: str = Form(...)):
+    """Saves the exit point coordinates."""
+    try:
+        coords = json.loads(exit_point)
+        if not (isinstance(coords, list) and len(coords) == 4 and all(isinstance(i, (int, float)) for i in coords)):
+            raise ValueError("Invalid coordinates format.")
+        
+        x1, y1, x2, y2 = map(int, coords)
+        coords_to_save = (min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2))
+
+        with open(EXIT_BOX_FILE, "w") as f:
+            json.dump({"exit_point": coords_to_save}, f)
+        
+        return {"message": "Exit point saved."}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error saving exit point: {e}")
+
+@app.post("/save-config")
+async def save_config(origin: str = Form(...), destination: str = Form(...)):
+    """Saves the origin and destination configuration."""
+    try:
+        config_data = {"origin": origin, "destination": destination}
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(config_data, f)
+        return {"message": "Configuration saved successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving configuration: {e}")
 
 @app.get("/departure-info")
-def get_departure_info():
-    """
-    Endpoint to get the departure time from the video.
-    Caches the result after the first calculation.
-    """
-    global departure_info_cache
-    if departure_info_cache is None:
-        print("Calculating departure time for the first time...")
-        departure_time = get_departure_time(VIDEO_PATH)
-        departure_info_cache = {"departure_time": departure_time}
-    return departure_info_cache
+def get_departure_info_endpoint():
+    """Calculates and returns the departure time, using a simple file cache."""
+    # Simple cache file to avoid re-calculating on every page load
+    cache_file = "departure_time.json"
+    try:
+        if os.path.exists(cache_file):
+            with open(cache_file, 'r') as f:
+                return json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        pass # Cache is invalid or not found, proceed to calculate
+
+    departure_time = get_departure_time(VIDEO_PATH)
+    result = {"departure_time": departure_time}
+    
+    # Save result to cache
+    with open(cache_file, 'w') as f:
+        json.dump(result, f)
+        
+    return result
 
 @app.get("/status/eta")
 def eta():
-    """Endpoint to get ETA from Google Maps."""
-    origin = "Ernakulam Metro Station, Kochi"
-    destination = "MITS College, Varikoli"
-    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&key={GOOGLE_MAPS_API_KEY}"
+    """Provides ETA using the saved origin/destination from Google Maps API."""
+    config = load_config()
+    origin = config.get("origin")
+    destination = config.get("destination")
+
+    if not origin or not destination:
+        raise HTTPException(status_code=400, detail="Origin or destination not configured. Please use the setup panel.")
+
+    url = f"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&key={Maps_API_KEY}"
     try:
-        resp = requests.get(url)
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
         data = resp.json()
         if data["status"] == "OK":
             route = data["routes"][0]["legs"][0]
             return {"eta": route["duration"]["text"], "distance": route["distance"]["text"], "origin": origin, "destination": destination}
+        else:
+            error_message = data.get("error_message", "An unknown error occurred.")
+            raise HTTPException(status_code=400, detail=f"Google Maps API Error: {data['status']} - {error_message}")
     except requests.RequestException as e:
-        print(f"Error calling Google Maps API: {e}")
-    return {"eta": "N/A", "distance": "N/A", "origin": origin, "destination": destination}
+        raise HTTPException(status_code=503, detail=f"Could not connect to Google Maps API: {e}")
+
