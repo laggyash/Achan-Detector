@@ -501,7 +501,7 @@
             document.getElementById('popupEta').textContent = etaData.eta;
             document.getElementById('popupDistance').innerHTML = `Distance: <b>${etaData.distance}</b>`;
             const mapsFrame = document.getElementById('mapsFrame');
-            const apiKey = "YOUR_GOOGLE_MAPS_API_KEY"; // Replace with your key
+            const apiKey = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g"; // Replace with your key
             const newMapUrl = `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${encodeURIComponent(etaData.origin)}&destination=${encodeURIComponent(etaData.destination)}&mode=driving`;
             if (mapsFrame.src !== newMapUrl) mapsFrame.src = newMapUrl;
         } catch (error) { console.error("Failed to fetch ETA:", error); }

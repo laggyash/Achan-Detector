@@ -10,7 +10,7 @@ from ultralytics import YOLO
 MODEL = YOLO("yolov8n.pt")
 VIDEO_PATH = "myvideo.mp4"
 EXIT_BOX_FILE = "exit_point.json"
-GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"  # IMPORTANT: Replace with your key
+GOOGLE_MAPS_API_KEY = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g"  # IMPORTANT: Replace with your key
 
 # --- FastAPI App Initialization ---
 app = FastAPI(title="Achan Detector API")
