@@ -1,7 +1,7 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# Achan Detector 🧍🏻‍♂️
+# അച്ഛൻ-Detector 🧍🏻‍♂️
 
 
 ## Basic Details
@@ -21,7 +21,7 @@ i) Whenever I'm travelling home for the weekend and I get off the bus, I'm left 
 ii) It is very common for me to hangout with my friends, lose track of time and come home later than expected. Getting in without facing the wrath of my dad is an issue I always face.
 
 ### The Solution (that nobody asked for)
-The solution? Achan-Detector uses my trusty old Raspberry Pi and my home CCTV camera feed to recognize when my dad leaves the house or is on his way to pick me up, and gives me an estimate of when he'll reach me!
+The solution? അച്ഛൻ-Detector uses my trusty old Raspberry Pi and my home CCTV camera feed to recognize when my dad leaves the house or is on his way to pick me up, and gives me an estimate of when he'll reach me!
 
 ## Technical Details
 ### Technologies/Components Used
