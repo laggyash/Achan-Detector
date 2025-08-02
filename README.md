@@ -1,7 +1,7 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# Achan Detector 🧍🏻‍♂️
+# അച്ഛൻ-Detector 🧍🏻‍♂️
 
 
 ## Basic Details
@@ -21,7 +21,7 @@ i) Whenever I'm travelling home for the weekend and I get off the bus, I'm left 
 ii) It is very common for me to hangout with my friends, lose track of time and come home later than expected. Getting in without facing the wrath of my dad is an issue I always face.
 
 ### The Solution (that nobody asked for)
-The solution? Achan-Detector uses my trusty old Raspberry Pi and my home CCTV camera feed to recognize when my dad leaves the house or is on his way to pick me up, and gives me an estimate of when he'll reach me!
+The solution? അച്ഛൻ-Detector uses my trusty old Raspberry Pi and my home CCTV camera feed to recognize when my dad leaves the house or is on his way to pick me up, and gives me an estimate of when he'll reach me!
 
 ## Technical Details
 ### Technologies/Components Used
@@ -47,13 +47,13 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1wZTCuwF2tHw-v_BPIhlayHKbajRrAhSg/view?usp=sharing" />
+[https://drive.google.com/file/d/1wZTCuwF2tHw-v_BPIhlayHKbajRrAhSg/view?usp=sharing]
 *front end - website front showing live feed video(static vid for now)
 
-<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1aaSeX_i9NRuArxpYxM5V5TT7CYKSTIM5/view?usp=sharing" />
+[https://drive.google.com/file/d/1aaSeX_i9NRuArxpYxM5V5TT7CYKSTIM5/view?usp=sharing]
 *API will fetch the data from google maps and display in the extended window
 
-<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1HtquE4WrjJi6jLRDnwAT3AuOzSZ03GRO/view?usp=sharing" />
+[https://drive.google.com/file/d/1HtquE4WrjJi6jLRDnwAT3AuOzSZ03GRO/view?usp=sharing]
 *shows the estimates and data fetched from the api 
 
 
@@ -68,15 +68,15 @@ For Software:
 
 ### Project Demo
 # Video
-[(https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing)]
+[https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing]
 *As soon as the father leaves home in his car, a notification is triggered, providing his estimated time of arrival and departure timestamp.*
 
 # Additional Demos
 [NIL]
 
 ## Team Contributions
-- [Aswin]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
-- [Fahim]: [ API creation with FastAPI and all frontend development, including the HTML, CSS, and dynamic JavaScript functionality.]
+- [Aswin G Ajay]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
+- [Fahim Faisel]: [ API creation with FastAPI and all frontend development, including the HTML, CSS, and dynamic JavaScript functionality.]
 
 
 ---
