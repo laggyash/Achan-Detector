@@ -75,8 +75,8 @@ For Software:
 [NIL]
 
 ## Team Contributions
-- [Aswin]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
-- [Fahim]: [ API creation with FastAPI and all frontend development, including the HTML, CSS, and dynamic JavaScript functionality.]
+- [Aswin G Ajay]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
+- [Fahim Faisel]: [API creation with FastAPI and all frontend development, including the HTML, CSS, and dynamic JavaScript functionality.]
 
 
 ---
