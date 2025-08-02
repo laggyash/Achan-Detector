@@ -47,14 +47,15 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1wZTCuwF2tHw-v_BPIhlayHKbajRrAhSg/view?usp=sharing" />
+*front end - website front showing live feed video(static vid for now)
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1aaSeX_i9NRuArxpYxM5V5TT7CYKSTIM5/view?usp=sharing" />
+*API will fetch the data from google maps and display in the extended window
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1HtquE4WrjJi6jLRDnwAT3AuOzSZ03GRO/view?usp=sharing" />
+*shows the estimates and data fetched from the api 
+
 
 # Diagrams
 ![Nil]
@@ -67,11 +68,11 @@ For Software:
 
 ### Project Demo
 # Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
+[(https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing)]
+*As soon as the father leaves home in his car, a notification is triggered, providing his estimated time of arrival and departure timestamp.*
 
 # Additional Demos
-[Add any extra demo materials/links]
+[NIL]
 
 ## Team Contributions
 - [Aswin]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
