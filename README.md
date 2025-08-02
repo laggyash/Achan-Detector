@@ -72,7 +72,8 @@ For Software:
 *As soon as the father leaves home in his car, a notification is triggered, providing his estimated time of arrival and departure timestamp.*
 
 # Additional Demos
-[NIL]
+[https://laggyash.github.io/Achan-Detector/]
+*This is a version of the project that works similarly, but with uploaded clips, due to the safety concerns of using live cctv footages and real locations. The clip can be uploaded and exit point can be set. The location can also be set, to get the ETA. The backend was hosted using Hugging Face and frontend using Github Pages. There is a slight delay in the upload and detection due to the free server limitation. The clip(video.mp4) provided in the uploads folder works easily for testing purposes*
 
 ## Team Contributions
 - [Aswin G Ajay]: [Full backend development, including the object detection logic with YOLOv8 and video processing.]
