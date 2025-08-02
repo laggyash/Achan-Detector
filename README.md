@@ -47,7 +47,7 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-<img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1wZTCuwF2tHw-v_BPIhlayHKbajRrAhSg/view?usp=sharing" />
+<img src="https://drive.google.com/file/d/1wZTCuwF2tHw-v_BPIhlayHKbajRrAhSg/view?usp=sharing" />
 *front end - website front showing live feed video(static vid for now)
 
 <img width="3188" height="1202" alt="frame (3)" src="https://drive.google.com/file/d/1aaSeX_i9NRuArxpYxM5V5TT7CYKSTIM5/view?usp=sharing" />
