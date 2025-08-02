@@ -901,31 +901,42 @@
             videoFormData.append('video', videoUpload.files[0]);
             showStatus(uploadStatus, 'Uploading video...');
             try {
-                const response = await fetch(`${API_BASE_URL}/upload-video`, { method: 'POST', body: videoFormData });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.detail || 'Upload failed');
+                const response = await fetch(`${API_BASE_URL}/upload-video`, { method: 'POST', body: videoFormData });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail || 'Upload failed');
 
-                showStatus(uploadStatus, result.message + ' Now saving exit point...');
+                showStatus(uploadStatus, result.message + ' Now saving exit point...');
 
-                const scaleX = videoFrame.videoWidth / videoFrame.clientWidth;
-                const scaleY = videoFrame.videoHeight / videoFrame.clientHeight;
-                const scaledRect = [
-                    rect.startX * scaleX, rect.startY * scaleY,
-                    (rect.startX + rect.w) * scaleX, (rect.startY + rect.h) * scaleY
-                ];
-                const exitPointFormData = new FormData();
-                exitPointFormData.append('exit_point', JSON.stringify(scaledRect));
+                const scaleX = videoFrame.videoWidth / videoFrame.clientWidth;
+                const scaleY = videoFrame.videoHeight / videoFrame.clientHeight;
+                const scaledRect = [
+                    rect.startX * scaleX, rect.startY * scaleY,
+                    (rect.startX + rect.w) * scaleX, (rect.startY + rect.h) * scaleY
+                ];
+                const exitPointFormData = new FormData();
+                exitPointFormData.append('exit_point', JSON.stringify(scaledRect));
 
-                const exitResponse = await fetch(`${API_BASE_URL}/save-exit-point`, { method: 'POST', body: exitPointFormData });
-                const exitResult = await exitResponse.json();
-                if (!exitResponse.ok) throw new Error(exitResult.detail || 'Failed to save exit point');
+                const exitResponse = await fetch(`${API_BASE_URL}/save-exit-point`, { method: 'POST', body: exitPointFormData });
+                const exitResult = await exitResponse.json();
+                if (!exitResponse.ok) throw new Error(exitResult.detail || 'Failed to save exit point');
 
-                showStatus(uploadStatus, 'Video and exit point saved successfully! Reloading page to apply changes...');
-                setTimeout(() => window.location.reload(), 2000);
+                showStatus(uploadStatus, 'Setup complete! Analyzing new video for departure time...');
+                
+                // 1. Update the main video player with the new video
+                await loadInitialVideo();
+                
+                // 2. Trigger the analysis on the new video
+                await initializePortal();
 
-            } catch (error) {
-                showStatus(uploadStatus, `Error: ${error.message}`, true);
-            }
+                // 3. Close the setup panel after a short delay
+                setTimeout(() => {
+                    setupContent.classList.remove('open');
+                    showStatus(uploadStatus, 'Analysis complete! The portal is now live with your new settings.', false);
+                }, 1500);
+
+            } catch (error) {
+                showStatus(uploadStatus, `Error: ${error.message}`, true);
+            }
         });
 
         saveConfigButton.addEventListener('click', async () => {
