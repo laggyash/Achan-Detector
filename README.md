@@ -41,7 +41,7 @@ For Software:
 [pip install fastapi uvicorn python-dotenv requests opencv-python ultralytics]
 
 # Run
-[uvicorn api:app --reload]
+[uvicorn main:app --reload]
 
 ### Project Documentation
 For Software:
