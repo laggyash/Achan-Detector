@@ -958,6 +958,12 @@
             setInterval(updateClock, 1000);
             initCanvasListeners();
         });
+
+        async function showUploadedVideo() {
+          const videoElement = document.getElementById("liveFeed");
+          videoElement.src = `${API_URL}/video`; //
+          videoElement.load();
+    }
     </script>
 </body>
 
