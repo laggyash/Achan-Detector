@@ -948,7 +948,17 @@
             document.body.style.setProperty('--x', e.clientX + 'px');
             document.body.style.setProperty('--y', e.clientY + 'px');
         });
-
+        async function loadInitialVideo() {
+          const videoElement = document.getElementById("liveFeed");
+          const response = await fetch(`${API_URL}/video`);
+  
+          if (response.ok) {
+            videoElement.src = `${API_URL}/video`;
+          } else {
+            console.log("No video available yet");
+          }
+        }
+        
         // --- Initializations ---
         document.addEventListener('DOMContentLoaded', () => {
             option1.classList.add('active');
@@ -957,13 +967,10 @@
             updateClock();
             setInterval(updateClock, 1000);
             initCanvasListeners();
+            loadInitialVideo();
         });
 
-        async function showUploadedVideo() {
-          const videoElement = document.getElementById("liveFeed");
-          videoElement.src = `${API_URL}/video`; //
-          videoElement.load();
-    }
+
     </script>
 </body>
 
