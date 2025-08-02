@@ -950,10 +950,10 @@
         });
         async function loadInitialVideo() {
           const videoElement = document.getElementById("liveFeed");
-          const response = await fetch(`${API_URL}/video`);
+          const response = await fetch(`${API_BASE_URL}/video`);
   
           if (response.ok) {
-            videoElement.src = `${API_URL}/video`;
+            videoElement.src = `${API_BASE_URL}/video`;
           } else {
             console.log("No video available yet");
           }
