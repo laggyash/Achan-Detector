@@ -49,13 +49,13 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-![https://drive.google.com/file/d/1--636Xe3KI1zXboKzi1OJ-eUyQLfz8Nw/view?usp=drive_link]
+![Screenshot 1](https://drive.google.com/uc?export=view&id=1--636Xe3KI1zXboKzi1OJ-eUyQLfz8Nw)
 - *Website front with the clip having "Undetected" status
 
-![https://drive.google.com/file/d/1jY7UZmECrI_vHe1NjIlQDtdDBcgd7ajX/view?usp=sharing]
+![Screenshot 2](https://drive.google.com/uc?export=view&id=1jY7UZmECrI_vHe1NjIlQDtdDBcgd7ajX)
 - *Website face with the clip having "Detected" status
 
-![https://drive.google.com/file/d/1sE38ddvuN9Cd6e18nFLe6GIAKABAlCes/view?usp=drive_link]
+![Screenshot 3](https://drive.google.com/uc?export=view&id=1sE38ddvuN9Cd6e18nFLe6GIAKABAlCes)
 - *The setup tab with options to upload clips, select exit point and set location
 
 
@@ -70,11 +70,11 @@ For Software:
 
 ### Project Demo
 # Video
-[https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing]
+![Link to Video](https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing)
 - *As soon as the father leaves home in his car, a notification is triggered, providing his estimated time of arrival and departure timestamp.*
 
 # Additional Demos
-[https://laggyash.github.io/Achan-Detector/]
+[Live Demo](https://laggyash.github.io/Achan-Detector/)
 - *This is a version of the project that works similarly, but with uploaded clips, due to the safety concerns of using live cctv footages and real locations. The clip can be uploaded and exit point can be set. The location can also be set, to get the ETA. The backend was hosted using Hugging Face and frontend using Github Pages. There is a slight delay in the upload and detection due to the free server limitation. The clip(video.mp4) provided in the uploads folder works easily for testing purposes*
 
 ## Team Contributions
