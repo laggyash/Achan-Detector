@@ -9,7 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 from ultralytics import YOLO
 
-# --- Constants and Configuration ---
 MODEL = YOLO("yolov8n.pt")
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -18,8 +17,7 @@ VIDEO_PATH = os.path.join(UPLOAD_DIR, "video.mp4")
 EXIT_BOX_FILE = "exit_point.json"
 CONFIG_FILE = "config.json"
 
-# It's highly recommended to use environment variables for API keys
-Maps_API_KEY = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g" # Replace with your key
+Maps_API_KEY = "AIzaSyDNYydMU9ms87z6oZf30c0SCjxBTAOkz8g" 
 
 app = FastAPI(title="Achan Detector API")
 
@@ -31,19 +29,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Global Cache/State ---
-# Using file-based state is simpler for this use case than in-memory cache
-# that would be lost on server restart.
-
-# --- Helper Functions ---
-
 def load_config() -> Dict[str, str]:
     """Loads origin/destination config from the JSON file."""
     try:
         with open(CONFIG_FILE, 'r') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        # Return a default or empty config if the file doesn't exist or is invalid
         return {"origin": "", "destination": ""}
 
 def load_exit_point() -> Tuple[int, int, int, int] | None:
