@@ -38,23 +38,25 @@ For Hardware:
 ### Implementation
 For Software:
 # Installation
-[pip install fastapi uvicorn python-dotenv requests opencv-python ultralytics]
+`git clone https://github.com/laggyash/Achan-Detector.git`
+`cd Achan-Detector`
+`pip install -r requirements.txt`
 
 # Run
-[uvicorn main:app --reload]
+`uvicorn main:app --reload`
 
 ### Project Documentation
 For Software:
 
 # Screenshots (Add at least 3)
-[https://drive.google.com/file/d/1wZTCuwF2tHw-v_BPIhlayHKbajRrAhSg/view?usp=sharing]
-*front end - website front showing live feed video(static vid for now)
+![https://drive.google.com/file/d/1--636Xe3KI1zXboKzi1OJ-eUyQLfz8Nw/view?usp=drive_link]
+*Website front with the clip having "Undetected" status
 
-[https://drive.google.com/file/d/1aaSeX_i9NRuArxpYxM5V5TT7CYKSTIM5/view?usp=sharing]
-*API will fetch the data from google maps and display in the extended window
+![https://drive.google.com/file/d/1jY7UZmECrI_vHe1NjIlQDtdDBcgd7ajX/view?usp=sharing]
+*Website face with the clip having "Detected" status
 
-[https://drive.google.com/file/d/1HtquE4WrjJi6jLRDnwAT3AuOzSZ03GRO/view?usp=sharing]
-*shows the estimates and data fetched from the api 
+![https://drive.google.com/file/d/1sE38ddvuN9Cd6e18nFLe6GIAKABAlCes/view?usp=drive_link]
+*The setup tab with options to upload clips, select exit point and set location
 
 
 # Diagrams
