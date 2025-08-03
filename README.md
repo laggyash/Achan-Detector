@@ -70,7 +70,7 @@ For Software:
 
 ### Project Demo
 # Video
-![Link to Video](https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing)
+[Link to Video](https://drive.google.com/file/d/1eJ5jqnm97wSGagdOv2uLgBcjTDCNPh1m/view?usp=sharing)
 - *As soon as the father leaves home in his car, a notification is triggered, providing his estimated time of arrival and departure timestamp.*
 
 # Additional Demos
